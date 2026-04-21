@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator prismabox {
+  provider                    = "prismabox"
+  typeboxImportDependencyName = "elysia"
+  typeboxImportVariableName   = "t"
+  inputModel                  = true
+  output                      = "../lib/models"
+}
+
+enum RoleUtilisateur {
+  ADMIN
+  CAISSIER
+  COLLECTEUR
+}
+
+enum TypeMouvement {
+  VERSEMENT
+  RETRAIT
+  DEPOT
+}
+
+enum StatutTransaction {
+  EN_ATTENTE
+  VALIDE
+  REJETE
+  ANNULE
+  REMBOURSE
+}
+
+model Societe {
+  id            Int       @id @default(autoincrement())
+  nom           String
+  raisonSociale String?
+  identifiant   String?   @unique
+  email         String?
+  telephone     String?
+  adresse       String?
+  isActive      Boolean   @default(true)
+  deletedAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agences      Agence[]
+  utilisateurs Utilisateur[] @relation("SocieteUtilisateurs")
+}
+
+model Agence {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  nom       String
+  adresse   String?
+  telephone String?
+  zoneId    Int?
+  societeId Int
+  isActive  Boolean   @default(true)
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  societe Societe @relation(fields: [societeId], references: [id], onDelete: Cascade)
+
+  utilisateurs     Utilisateur[]
+  clients          ClientTotine[]
+  cotisations      Cotisation[]
+  mouvementTotines MouvementTotine[]
+}
+
+model Utilisateur {
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  motDePasseHash String
+  nom            String
+  telephone      String?
+  role           RoleUtilisateur @default(CAISSIER)
+  societeId      Int?
+  agenceId       Int?
+  isActive       Boolean         @default(true)
+  lastLogin      DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  societe Societe? @relation("SocieteUtilisateurs", fields: [societeId], references: [id])
+  agence  Agence?  @relation(fields: [agenceId], references: [id])
+
+  clientTotines    ClientTotine[]
+  carnets          Carnet[]
+  cotisations      Cotisation[]
+  mouvementTotines MouvementTotine[]
+  clientSoldes     ClientSolde[]
+}
+
+model ClientTotine {
+  id                Int     @id @default(autoincrement())
+  numeroClient      String  @unique
+  nom               String
+  telephone         String?
+  email             String?
+  agentCollecteurId Int
+  agenceId          Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agence           Agence            @relation(fields: [agenceId], references: [id])
+  utilisateurs     Utilisateur       @relation(fields: [agentCollecteurId], references: [id])
+  carnets          Carnet[]
+  cotisations      Cotisation[]
+  mouvementTotines MouvementTotine[]
+  clientSoldes     ClientSolde[]
+}
+
+model Carnet {
+  id                Int      @id @default(autoincrement())
+  numeroCarnet      String   @unique
+  agentCollecteurId Int
+  clientTotineId    Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  client           ClientTotine?     @relation(fields: [clientTotineId], references: [id])
+  utilisateurs     Utilisateur?      @relation(fields: [agentCollecteurId], references: [id])
+  cotisations      Cotisation[]
+  mouvementTotines MouvementTotine[]
+}
+
+enum Mois {
+  JANVIER
+  FEVRIER
+  MARS
+  AVRIL
+  MAI
+  JUIN
+  JUILLET
+  AOUT
+  SEPTEMBRE
+  OCTOBRE
+  NOVEMBRE
+  DECEMBRE
+}
+
+model Cotisation {
+  id                Int          @id @default(autoincrement())
+  mois              Mois
+  annee             Int
+  mise              Decimal
+  clientId          Int
+  carnetId          Int
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  soldeDeCloture    Decimal?
+  soldeDisponible   Decimal
+  dateOuverture     DateTime     @default(now())
+  dateCloture       DateTime?
+  agenceId          Int
+  agentCollecteurId Int
+  isActif           Boolean      @default(true)
+  agence            Agence       @relation(fields: [agenceId], references: [id])
+  utilisateurs      Utilisateur? @relation(fields: [agentCollecteurId], references: [id])
+  client            ClientTotine @relation(fields: [clientId], references: [id])
+  carnet            Carnet       @relation(fields: [carnetId], references: [id])
+}
+
+model MouvementTotine {
+  id             Int           @id @default(autoincrement())
+  jour           Int
+  montant        Decimal
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  carnetId       Int
+  carnet         Carnet        @relation(fields: [carnetId], references: [id])
+  agence         Agence?       @relation(fields: [agenceId], references: [id])
+  agenceId       Int?
+  utilisateur    Utilisateur?  @relation(fields: [utilisateurId], references: [id])
+  utilisateurId  Int?
+  clientTotine   ClientTotine? @relation(fields: [clientTotineId], references: [id])
+  clientTotineId Int?
+}
+
+model ClientSolde {
+  id                Int     @id @default(autoincrement())
+  clientId          Int
+  soldeTotal        Decimal
+  agenceId          Int
+  agentCollecteurId Int
+  isActif           Boolean @default(true)
+
+  client       ClientTotine? @relation(fields: [clientId], references: [id])
+  utilisateurs Utilisateur?  @relation(fields: [agentCollecteurId], references: [id])
+}

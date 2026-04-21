@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@elysiajs/jwt": "^1.4.1",
+    "@elysiajs/static": "^1.4.9",
+    "bcryptjs": "^3.0.3"
+  }
+}
