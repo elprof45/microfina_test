@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { Card, Button } from "@/components/Common";
 import { Table } from "@/components/Table";
 import { Modal } from "@/components/Modal";
+import { TextInput } from "@/components/Form";
 
 export default function AgenciesPage() {
   const [agencies, setAgencies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchAgencies();
@@ -28,6 +30,14 @@ export default function AgenciesPage() {
       setLoading(false);
     }
   };
+
+  const filteredAgencies = useMemo(() => {
+    return agencies.filter((a) =>
+      a.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (a.code && a.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (a.adresse && a.adresse.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [agencies, searchTerm]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -52,10 +62,26 @@ export default function AgenciesPage() {
         </Link>
       </div>
 
+      <Card className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Search</h3>
+          {filteredAgencies.length > 0 && (
+            <p className="text-sm text-gray-600">
+              {filteredAgencies.length} of {agencies.length} results
+            </p>
+          )}
+        </div>
+        <TextInput
+          placeholder="Search by name, code, or address..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </Card>
+
       <Card>
         <Table
           isLoading={loading}
-          data={agencies}
+          data={filteredAgencies}
           columns={[
             { key: "id", label: "ID" },
             { key: "code", label: "Code" },
@@ -70,6 +96,11 @@ export default function AgenciesPage() {
                   <Link href={`/agencies/${id}`}>
                     <Button variant="secondary" size="sm">
                       View
+                    </Button>
+                  </Link>
+                  <Link href={`/agencies/${id}/edit`}>
+                    <Button variant="secondary" size="sm">
+                      Edit
                     </Button>
                   </Link>
                   <button

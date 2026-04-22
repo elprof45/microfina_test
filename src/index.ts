@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { openapi } from '@elysiajs/openapi'
-import { jwt } from "@elysiajs/jwt";
+import { jwt } from '@elysiajs/jwt'
 import {
   agenceService,
   carnetService,
@@ -30,14 +30,11 @@ import {
 } from "../lib/validations";
 import { authService } from "../lib/auth";
 import { z } from "zod";
+import cors from "@elysiajs/cors";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-key-change-in-prod";
 
-const app = new Elysia()
-  .use(openapi())
-  .use(jwt({ secret: JWT_SECRET }))
-
-app.get("/", () => "Hello Elysia")
+const app = new Elysia().use(cors()).use(openapi())
 
 // --- AUTH ENDPOINTS ---
 app.group("/auth", (app) =>
@@ -158,29 +155,22 @@ app.group("/auth", (app) =>
 )
 
 // JWT Guard middleware - protects all routes below
-app.guard(
-  {
-    headers: t.Object({
-      authorization: t.Optional(t.String())
-    })
-  },
-  async ({ headers, set }) => {
-    const authHeader = headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      set.status = 401;
-      throw new Error("Missing or invalid Authorization header");
-    }
-
-    const token = authHeader.substring(7);
-    try {
-      const decoded = await authService.verifyAccessToken(token);
-      return { user: decoded };
-    } catch (error) {
-      set.status = 401;
-      throw new Error("Invalid or expired token");
-    }
+app.onBeforeHandle(async ({ headers, set }) => {
+  const authHeader = headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    set.status = 401;
+    throw new Error("Missing or invalid Authorization header");
   }
-)
+
+  const token = authHeader.substring(7);
+  try {
+    const decoded = await authService.verifyAccessToken(token);
+    return { user: decoded };
+  } catch (error) {
+    set.status = 401;
+    throw new Error("Invalid or expired token");
+  }
+})
 
 // Group societe routes
 app.group("/societe", (app) =>
@@ -194,7 +184,14 @@ app.group("/societe", (app) =>
       response: z.array(SocieteSchema),
       detail: { summary: "Liste des sociétés" }
     })
-    .get("/:id", ({ params: { id } }) => societeService.getById(id), {
+    .get("/:id", async ({ params: { id }, set }) => {
+      const societe = await societeService.getById(id);
+      if (!societe) {
+        set.status = 404;
+        throw new Error("Société not found");
+      }
+      return societe;
+    }, {
       params: z.object({ id: z.coerce.number() }),
       response: SocieteSchema,
       detail: { summary: "Détails d'une société" }
@@ -224,7 +221,14 @@ app.group("/agence", (app) =>
       response: z.array(AgenceSchema),
       detail: { summary: "Liste des agences" }
     })
-    .get("/:id", ({ params: { id } }) => agenceService.getById(id), {
+    .get("/:id", async ({ params: { id }, set }) => {
+      const agence = await agenceService.getById(id);
+      if (!agence) {
+        set.status = 404;
+        throw new Error("Agence not found");
+      }
+      return agence;
+    }, {
       params: z.object({ id: z.coerce.number() }),
       response: AgenceSchema,
       detail: { summary: "Détails d'une agence" }
@@ -254,7 +258,14 @@ app.group("/utilisateur", (app) =>
       response: z.array(UtilisateurSchema),
       detail: { summary: "Liste des utilisateurs" }
     })
-    .get("/:id", ({ params: { id } }) => utilisateurService.getById(id), {
+    .get("/:id", async ({ params: { id }, set }) => {
+      const utilisateur = await utilisateurService.getById(id);
+      if (!utilisateur) {
+        set.status = 404;
+        throw new Error("Utilisateur not found");
+      }
+      return utilisateur;
+    }, {
       params: z.object({ id: z.coerce.number() }),
       response: UtilisateurSchema,
       detail: { summary: "Détails d'un utilisateur" }
@@ -309,7 +320,14 @@ app.group("/carnet", (app) =>
       body: CarnetCreateSchema,
       response: CarnetSchema,
     })
-    .get("/:id", ({ params: { id } }) => carnetService.getById(id), {
+    .get("/:id", async ({ params: { id }, set }) => {
+      const carnet = await carnetService.getById(id);
+      if (!carnet) {
+        set.status = 404;
+        throw new Error("Carnet not found");
+      }
+      return carnet;
+    }, {
       params: z.object({ id: z.coerce.number() }),
       response: CarnetSchema,
     })
@@ -354,7 +372,7 @@ app.group("/stats", (app) =>
     })
 );
 
-app.listen(3000);
+app.listen(3033);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`

@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { Card, Button } from "@/components/Common";
 import { Table } from "@/components/Table";
 import { Modal } from "@/components/Modal";
+import { TextInput } from "@/components/Form";
 
 export default function SocietiesPage() {
   const [societies, setSocieties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchSocieties();
@@ -28,6 +30,14 @@ export default function SocietiesPage() {
       setLoading(false);
     }
   };
+
+  const filteredSocieties = useMemo(() => {
+    return societies.filter((s) =>
+      s.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (s.identifiant && s.identifiant.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (s.email && s.email.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [societies, searchTerm]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -52,10 +62,26 @@ export default function SocietiesPage() {
         </Link>
       </div>
 
+      <Card className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Search</h3>
+          {filteredSocieties.length > 0 && (
+            <p className="text-sm text-gray-600">
+              {filteredSocieties.length} of {societies.length} results
+            </p>
+          )}
+        </div>
+        <TextInput
+          placeholder="Search by name, identifier, or email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </Card>
+
       <Card>
         <Table
           isLoading={loading}
-          data={societies}
+          data={filteredSocieties}
           columns={[
             { key: "id", label: "ID" },
             { key: "nom", label: "Name" },
@@ -70,6 +96,11 @@ export default function SocietiesPage() {
                   <Link href={`/societies/${id}`}>
                     <Button variant="secondary" size="sm">
                       View
+                    </Button>
+                  </Link>
+                  <Link href={`/societies/${id}/edit`}>
+                    <Button variant="secondary" size="sm">
+                      Edit
                     </Button>
                   </Link>
                   <button

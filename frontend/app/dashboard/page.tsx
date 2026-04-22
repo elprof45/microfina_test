@@ -47,28 +47,28 @@ export default function DashboardPage() {
   const statCards = [
     {
       title: "Total Societies",
-      value: stats?.totalSocietes || 0,
+      value: stats?._count?.societe || 0,
       color: "blue",
       icon: Building2,
       href: "/societies"
     },
     {
       title: "Total Agencies",
-      value: stats?.totalAgences || 0,
+      value: stats?._count?.agence || 0,
       color: "green",
       icon: Banknote,
       href: "/agencies"
     },
     {
       title: "Total Clients",
-      value: stats?.totalClients || 0,
+      value: stats?._count?.client || 0,
       color: "purple",
       icon: Users,
       href: "/clients"
     },
     {
       title: "Total Collected",
-      value: `$${stats?.totalVolume || 0}`,
+      value: `$${stats?.totalCollected || 0}`,
       color: "amber",
       icon: TrendingUp,
       href: "/transactions"
@@ -112,7 +112,7 @@ export default function DashboardPage() {
       description: "Manage client profiles, carnets, and contributions",
       icon: Users,
       href: "/clients",
-      stats: `${stats?.totalClients || 0} clients`,
+      stats: `${stats?._count?.client || 0} clients`,
       color: "border-blue-200 bg-blue-50"
     },
     {
@@ -128,7 +128,7 @@ export default function DashboardPage() {
       description: "Oversee agency performance and management",
       icon: Building2,
       href: "/agencies",
-      stats: `${stats?.totalAgences || 0} agencies`,
+      stats: `${stats?._count?.agence || 0} agencies`,
       color: "border-purple-200 bg-purple-50"
     },
     {
@@ -136,7 +136,7 @@ export default function DashboardPage() {
       description: "Manage society settings and configurations",
       icon: Banknote,
       href: "/societies",
-      stats: `${stats?.totalSocietes || 0} societies`,
+      stats: `${stats?._count?.societe || 0} societies`,
       color: "border-orange-200 bg-orange-50"
     },
     {

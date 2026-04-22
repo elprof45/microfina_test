@@ -310,10 +310,12 @@ export const mouvementService = {
 // --- GLOBAL STATE / STATS ---
 export const reportingService = {
   async getGlobalStats() {
-    const [societes, agences, clients, totalMouvements] = await Promise.all([
+    const [societes, agences, clients, utilisateurs, carnets, totalMouvements] = await Promise.all([
       prisma.societe.count({ where: { deletedAt: null } }),
       prisma.agence.count({ where: { deletedAt: null } }),
       prisma.clientTotine.count(),
+      prisma.utilisateur.count({ where: { deletedAt: null } }),
+      prisma.carnet.count(),
       prisma.mouvementTotine.aggregate({
         _sum: { montant: true },
         _count: true
@@ -324,6 +326,8 @@ export const reportingService = {
       totalSocietes: societes,
       totalAgences: agences,
       totalClients: clients,
+      totalUsers: utilisateurs,
+      totalCarnets: carnets,
       totalTransactions: totalMouvements._count,
       totalVolume: totalMouvements._sum.montant || 0
     };
