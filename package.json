@@ -7,15 +7,12 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/cors": "^1.4.1",
-    "@elysiajs/jwt": "^1.4.1",
-    "@elysiajs/openapi": "^1.4.14",
-    "@elysiajs/static": "^1.4.9",
-    "@prisma/adapter-libsql": "^7.5.0",
+    "@hono/zod-openapi": "^0.16.4",
+    "@hono/zod-validator": "^0.2.2",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "bcryptjs": "^3.0.3",
-    "elysia": "latest",
+    "hono": "^4.0.11",
     "jose": "^6.2.2",
     "pg": "^8.20.0",
     "zod": "^4.3.6"
