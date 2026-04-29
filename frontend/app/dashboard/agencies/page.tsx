@@ -146,12 +146,9 @@ export default function AgenciesPage() {
                 key: "isActive", 
                 label: "Status",
                 render: (isActive) => (
-                   <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
-                      <span className={`text-xs font-bold ${isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
-                        {isActive ? 'ACTIVE' : 'OFFLINE'}
-                      </span>
-                   </div>
+                   <Badge variant={isActive ? "success" : "danger"}>
+                     {isActive ? "ACTIVE" : "OFFLINE"}
+                   </Badge>
                 )
               },
               {

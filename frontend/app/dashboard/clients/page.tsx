@@ -111,7 +111,7 @@ export default function ClientsPage() {
               key: "isActive",
               label: "Status",
               render: (v) => (
-                <Badge variant={v === false ? "error" : "success"}>
+                <Badge variant={v === false ? "danger" : "success"}>
                   {v === false ? "Inactive" : "Active"}
                 </Badge>
               )

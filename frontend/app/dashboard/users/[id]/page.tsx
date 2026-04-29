@@ -65,13 +65,13 @@ export default function UserDetailPage() {
           </div>
           <div>
             <p className="text-gray-600 text-sm">Role</p>
-            <Badge variant={user.role === "ADMIN" ? "error" : "default"}>
+            <Badge variant={user.role === "ADMIN" ? "danger" : "default"}>
               {user.role}
             </Badge>
           </div>
           <div>
             <p className="text-gray-600 text-sm">Status</p>
-            <Badge variant={user.isActive ? "success" : "error"}>
+            <Badge variant={user.isActive ? "success" : "danger"}>
               {user.isActive ? "Active" : "Inactive"}
             </Badge>
           </div>

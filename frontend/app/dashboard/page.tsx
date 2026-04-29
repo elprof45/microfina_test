@@ -197,7 +197,7 @@ export default function DashboardPage() {
                     key: "typeMouvement",
                     label: "Type",
                     render: (v) => (
-                      <Badge variant={v === "VERSEMENT" ? "success" : v === "RETRAIT" ? "error" : "info"}>
+                      <Badge variant={v === "VERSEMENT" ? "success" : v === "RETRAIT" ? "danger" : "info"}>
                         {v}
                       </Badge>
                     )
