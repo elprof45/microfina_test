@@ -7,6 +7,11 @@ import { authService } from './auth';
  * Extracts user data from JWT and stores in context
  */
 export const jwtGuard = () => async (c: Context, next: () => Promise<void>) => {
+  // Allow OPTIONS requests for CORS preflight
+  if (c.req.method === 'OPTIONS') {
+    return await next();
+  }
+
   const authHeader = c.req.header('Authorization');
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

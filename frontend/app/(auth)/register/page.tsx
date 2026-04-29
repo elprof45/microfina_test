@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/useAuth";
 import { TextInput, Select } from "@/components/Form";
 import { Button, Card } from "@/components/Common";
 import { api } from "@/lib/api";
+import { UserPlus, ArrowLeft, Building2, UserCircle } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -78,63 +79,83 @@ export default function RegisterPage() {
   };
 
   return (
-    <Card className="p-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-        <p className="text-gray-600">Join Microphina Totine System</p>
+    <Card className="!p-10 border-none shadow-2xl relative overflow-hidden">
+      {/* Decorative Brand Accent */}
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 to-blue-600" />
+      
+      <div className="mb-8">
+        <Link href="/login" className="text-slate-400 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5 text-sm font-bold group mb-6">
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          Back to Login
+        </Link>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+            <UserPlus size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 font-outfit">Create Agent Account</h1>
+            <p className="text-slate-500 text-sm font-medium">Join the Microphina network today.</p>
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {(formError || error) && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-sm font-medium flex items-center gap-2 animate-in slide-in-from-top-2 duration-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
             {formError || error}
           </div>
         )}
 
-        <TextInput
-          name="email"
-          type="email"
-          label="Email"
-          placeholder="your@email.com"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TextInput
+            name="nom"
+            type="text"
+            label="Full Name"
+            placeholder="John Doe"
+            value={formData.nom}
+            onChange={handleChange}
+            required
+            className="!pl-4"
+          />
+          <TextInput
+            name="email"
+            type="email"
+            label="Email Address"
+            placeholder="john@example.com"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="!pl-4"
+          />
+        </div>
 
-        <TextInput
-          name="nom"
-          type="text"
-          label="Full Name"
-          placeholder="John Doe"
-          value={formData.nom}
-          onChange={handleChange}
-          required
-        />
-
-        <TextInput
-          name="telephone"
-          type="tel"
-          label="Phone Number (Optional)"
-          placeholder="+1234567890"
-          value={formData.telephone}
-          onChange={handleChange}
-        />
-
-        <Select
-          name="role"
-          label="Role"
-          value={formData.role}
-          onChange={handleChange}
-          options={[
-            { value: "CAISSIER", label: "Cashier" },
-            { value: "COLLECTEUR", label: "Collector" },
-            { value: "ADMIN", label: "Admin" },
-          ]}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TextInput
+            name="telephone"
+            type="tel"
+            label="Phone Number"
+            placeholder="+1 (555) 000-0000"
+            value={formData.telephone}
+            onChange={handleChange}
+            className="!pl-4"
+          />
+          <Select
+            name="role"
+            label="Designation / Role"
+            value={formData.role}
+            onChange={handleChange}
+            options={[
+              { value: "CAISSIER", label: "Agency Cashier" },
+              { value: "COLLECTEUR", label: "Field Collector" },
+              { value: "ADMIN", label: "Agency Administrator" },
+            ]}
+          />
+        </div>
 
         <Select
           name="agenceId"
-          label="Agency (Optional)"
+          label="Assign to Agency"
           value={formData.agenceId}
           onChange={handleChange}
           options={agencies.map((agency) => ({
@@ -143,45 +164,44 @@ export default function RegisterPage() {
           }))}
         />
 
-        <TextInput
-          name="password"
-          type="password"
-          label="Password"
-          placeholder="••••••••"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TextInput
+            name="password"
+            type="password"
+            label="Password"
+            placeholder="••••••••"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="!pl-4"
+          />
+          <TextInput
+            name="passwordConfirm"
+            type="password"
+            label="Confirm Password"
+            placeholder="••••••••"
+            value={formData.passwordConfirm}
+            onChange={handleChange}
+            required
+            className="!pl-4"
+          />
+        </div>
 
-        <TextInput
-          name="passwordConfirm"
-          type="password"
-          label="Confirm Password"
-          placeholder="••••••••"
-          value={formData.passwordConfirm}
-          onChange={handleChange}
-          required
-        />
-
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          isLoading={isLoading}
-          className="w-full"
-        >
-          Create Account
-        </Button>
+        <div className="pt-4">
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            isLoading={isLoading}
+            className="w-full !rounded-xl !py-4 shadow-xl shadow-emerald-900/10 !bg-gradient-to-r !from-emerald-600 !to-blue-600"
+          >
+            Complete Registration
+          </Button>
+          <p className="text-center text-[10px] text-slate-400 mt-4 px-6 uppercase tracking-widest font-bold">
+            By registering, you agree to our terms of service and internal agency policies.
+          </p>
+        </div>
       </form>
-
-      <div className="mt-6 text-center text-sm">
-        <p className="text-gray-600">
-          Already have an account?{" "}
-          <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-            Sign in
-          </Link>
-        </p>
-      </div>
     </Card>
   );
 }

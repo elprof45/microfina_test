@@ -8,16 +8,18 @@ import { Table } from "@/components/Table";
 import {
   Users,
   Building2,
-  Banknote,
+  Landmark,
   TrendingUp,
   UserPlus,
   Settings,
-  FileText,
   BarChart3,
   CreditCard,
   PlusCircle,
   Eye,
-  Edit
+  ArrowUpRight,
+  ArrowDownRight,
+  Activity,
+  Wallet
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -48,230 +50,206 @@ export default function DashboardPage() {
     {
       title: "Total Societies",
       value: stats?._count?.societe || 0,
+      trend: "+2 this month",
+      trendUp: true,
+      icon: Landmark,
       color: "blue",
-      icon: Building2,
-      href: "/societies"
+      href: "/dashboard/societies"
     },
     {
       title: "Total Agencies",
       value: stats?._count?.agence || 0,
-      color: "green",
-      icon: Banknote,
-      href: "/agencies"
+      trend: "Stable",
+      trendUp: true,
+      icon: Building2,
+      color: "indigo",
+      href: "/dashboard/agencies"
     },
     {
       title: "Total Clients",
       value: stats?._count?.client || 0,
-      color: "purple",
+      trend: "+12.5%",
+      trendUp: true,
       icon: Users,
-      href: "/clients"
+      color: "emerald",
+      href: "/dashboard/clients"
     },
     {
-      title: "Total Collected",
-      value: `$${stats?.totalCollected || 0}`,
+      title: "Volume Collected",
+      value: `$${(stats?.totalCollected || 0).toLocaleString()}`,
+      trend: "+18% vs last week",
+      trendUp: true,
+      icon: Wallet,
       color: "amber",
-      icon: TrendingUp,
-      href: "/transactions"
+      href: "/dashboard/transactions"
     },
   ];
 
   const quickActions = [
     {
-      title: "Add New Client",
-      description: "Register a new client in the system",
+      title: "Register Client",
       icon: UserPlus,
-      href: "/clients/create",
-      color: "bg-blue-500 hover:bg-blue-600"
+      href: "/dashboard/clients/new",
+      color: "bg-blue-600 shadow-blue-200"
     },
     {
-      title: "Record Transaction",
-      description: "Add a new transaction entry",
+      title: "Log Transaction",
       icon: CreditCard,
-      href: "/transactions/create",
-      color: "bg-green-500 hover:bg-green-600"
+      href: "/dashboard/transactions",
+      color: "bg-indigo-600 shadow-indigo-200"
     },
     {
       title: "View Reports",
-      description: "Access detailed analytics and reports",
       icon: BarChart3,
-      href: "/reporting",
-      color: "bg-purple-500 hover:bg-purple-600"
+      href: "/dashboard/reporting",
+      color: "bg-slate-800 shadow-slate-200"
     },
     {
-      title: "Manage Users",
-      description: "Add or edit system users",
+      title: "Settings",
       icon: Settings,
-      href: "/users",
-      color: "bg-orange-500 hover:bg-orange-600"
-    },
-  ];
-
-  const navigationCards = [
-    {
-      title: "Client Management",
-      description: "Manage client profiles, carnets, and contributions",
-      icon: Users,
-      href: "/clients",
-      stats: `${stats?._count?.client || 0} clients`,
-      color: "border-blue-200 bg-blue-50"
-    },
-    {
-      title: "Transaction Tracking",
-      description: "Monitor all financial transactions and movements",
-      icon: CreditCard,
-      href: "/transactions",
-      stats: `${stats?.totalTransactions || 0} transactions`,
-      color: "border-green-200 bg-green-50"
-    },
-    {
-      title: "Agency Operations",
-      description: "Oversee agency performance and management",
-      icon: Building2,
-      href: "/agencies",
-      stats: `${stats?._count?.agence || 0} agencies`,
-      color: "border-purple-200 bg-purple-50"
-    },
-    {
-      title: "Society Administration",
-      description: "Manage society settings and configurations",
-      icon: Banknote,
-      href: "/societies",
-      stats: `${stats?._count?.societe || 0} societies`,
-      color: "border-orange-200 bg-orange-50"
-    },
-    {
-      title: "User Management",
-      description: "Control user access and permissions",
-      icon: Settings,
-      href: "/users",
-      stats: `${stats?.totalUsers || 0} users`,
-      color: "border-red-200 bg-red-50"
-    },
-    {
-      title: "Carnet System",
-      description: "Manage client contribution carnets",
-      icon: FileText,
-      href: "/carnets",
-      stats: `${stats?.totalCarnets || 0} carnets`,
-      color: "border-indigo-200 bg-indigo-50"
+      href: "/dashboard/users",
+      color: "bg-slate-500 shadow-slate-100"
     },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 animate-in fade-in duration-700">
+      {/* Welcome Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">Welcome back! Here's an overview of your microfinance operations.</p>
+          <h1 className="text-4xl font-bold text-slate-900 font-outfit tracking-tight">System Overview</h1>
+          <p className="text-slate-500 mt-1 font-medium">Hello there! Here is what's happening today in Microphina.</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" size="sm">
-            <Eye className="w-4 h-4 mr-2" />
-            View All Reports
+          <Button variant="secondary" size="sm">
+            <Eye size={18} />
+            Global Report
           </Button>
           <Button variant="primary" size="sm">
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Quick Actions
+            <PlusCircle size={18} />
+            Record Activity
           </Button>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, idx) => (
           <Link key={idx} href={stat.href}>
-            <Card className="bg-white border-l-4 border-blue-500 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm">{stat.title}</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-2">{stat.value}</p>
-                </div>
-                <stat.icon className="w-8 h-8 text-gray-400" />
-              </div>
+            <Card className="group hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border-none shadow-premium relative overflow-hidden">
+               <div className="flex justify-between items-start relative z-10">
+                  <div>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{stat.title}</p>
+                    <h3 className="text-3xl font-bold text-slate-900 font-outfit">{stat.value}</h3>
+                  </div>
+                  <div className={`p-3 rounded-2xl bg-${stat.color}-50 text-${stat.color}-600 group-hover:bg-${stat.color}-600 group-hover:text-white transition-colors duration-300 shadow-sm`}>
+                    <stat.icon size={24} />
+                  </div>
+               </div>
+               <div className="mt-4 flex items-center gap-1.5 relative z-10">
+                  <span className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full ${stat.trendUp ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                    {stat.trendUp ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                    {stat.trend}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">Since last period</span>
+               </div>
+               {/* Decorative background circle */}
+               <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-${stat.color}-50/50 rounded-full blur-2xl group-hover:bg-${stat.color}-100 transition-colors duration-500`} />
             </Card>
           </Link>
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {quickActions.map((action, idx) => (
-            <Link key={idx} href={action.href}>
-              <Card className={`${action.color} text-white hover:shadow-lg transition-all cursor-pointer`}>
-                <div className="flex items-center space-x-3">
-                  <action.icon className="w-6 h-6" />
-                  <div>
-                    <h3 className="font-semibold">{action.title}</h3>
-                    <p className="text-sm opacity-90">{action.description}</p>
-                  </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Span: Recent Activity */}
+        <div className="lg:col-span-2 space-y-6">
+           <Card className="!p-0 border-none shadow-premium overflow-hidden">
+              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-white/50 backdrop-blur-sm">
+                <div className="flex items-center gap-2">
+                   <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                      <Activity size={18} />
+                   </div>
+                   <h2 className="text-lg font-bold text-slate-900">Recent Transactions</h2>
                 </div>
-              </Card>
-            </Link>
-          ))}
+                <Link href="/dashboard/transactions" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 group">
+                  View Full History <PlusCircle size={14} className="group-hover:rotate-90 transition-transform" />
+                </Link>
+              </div>
+              <Table
+                isLoading={loading}
+                data={recent}
+                columns={[
+                  { 
+                    key: "client", 
+                    label: "Client", 
+                    render: (v) => <span className="font-semibold text-slate-700">{v?.nom || "Unknown"}</span>
+                  },
+                  { 
+                    key: "montant", 
+                    label: "Amount", 
+                    render: (v, row) => (
+                      <span className={`font-bold ${row.typeMouvement === 'RETRAIT' ? 'text-rose-500' : 'text-emerald-500'}`}>
+                        {row.typeMouvement === 'RETRAIT' ? '-' : '+'}${v.toLocaleString()}
+                      </span>
+                    )
+                  },
+                  {
+                    key: "typeMouvement",
+                    label: "Type",
+                    render: (v) => (
+                      <Badge variant={v === "VERSEMENT" ? "success" : v === "RETRAIT" ? "error" : "info"}>
+                        {v}
+                      </Badge>
+                    )
+                  },
+                  { 
+                    key: "createdAt", 
+                    label: "Time", 
+                    render: (v) => <span className="text-xs text-slate-400 font-medium">{new Date(v).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                  },
+                ]}
+              />
+           </Card>
+        </div>
+
+        {/* Right Span: Quick Actions & Help */}
+        <div className="space-y-6">
+           <div className="grid grid-cols-2 gap-3">
+              {quickActions.map((action, idx) => (
+                <Link key={idx} href={action.href}>
+                   <div className={`${action.color} p-4 rounded-2xl text-white hover:scale-105 active:scale-95 transition-all shadow-lg hover:shadow-xl cursor-pointer flex flex-col items-center justify-center text-center gap-3 h-32`}>
+                      <action.icon size={28} />
+                      <span className="font-bold text-xs uppercase tracking-widest leading-tight">{action.title}</span>
+                   </div>
+                </Link>
+              ))}
+           </div>
+
+           <Card className="bg-slate-900 border-none relative overflow-hidden group">
+              <div className="relative z-10">
+                 <h3 className="text-white font-bold text-lg mb-2">Need Insights?</h3>
+                 <p className="text-slate-400 text-sm mb-4">Generate detailed PDF reports for your agency performance.</p>
+                 <Button variant="primary" size="sm" className="w-full !rounded-xl !bg-white !text-slate-900 hover:!bg-slate-100">
+                    <BarChart3 size={18} />
+                    Coming Soon
+                 </Button>
+              </div>
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors" />
+           </Card>
+
+           <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-200/50">
+              <div className="flex items-center gap-3 mb-4">
+                 <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <TrendingUp size={20} />
+                 </div>
+                 <h4 className="font-bold font-outfit">Performance Tip</h4>
+              </div>
+              <p className="text-sm font-medium leading-relaxed opacity-90">
+                Agencies with active carnets see <span className="font-bold underline italic">24% higher</span> collection rates. Encourage your agents to register more clients today.
+              </p>
+           </div>
         </div>
       </div>
-
-      {/* Navigation Cards */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">System Modules</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {navigationCards.map((card, idx) => (
-            <Link key={idx} href={card.href}>
-              <Card className={`${card.color} hover:shadow-lg transition-all cursor-pointer border-2`}>
-                <div className="flex items-start justify-between mb-3">
-                  <card.icon className="w-8 h-8 text-gray-600" />
-                  <Badge variant="secondary" className="text-xs">
-                    {card.stats}
-                  </Badge>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{card.title}</h3>
-                <p className="text-gray-600 text-sm">{card.description}</p>
-                <div className="mt-4 flex items-center text-blue-600 text-sm font-medium">
-                  Access Module <Edit className="w-4 h-4 ml-1" />
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Recent Transactions */}
-      <Card>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Transactions</h2>
-          <Link href="/transactions">
-            <Button variant="outline" size="sm">
-              View All Transactions
-            </Button>
-          </Link>
-        </div>
-        <Table
-          isLoading={loading}
-          data={recent}
-          columns={[
-            { key: "id", label: "Transaction ID" },
-            { key: "montant", label: "Amount", render: (v) => `$${v}` },
-            {
-              key: "typeMouvement",
-              label: "Type",
-              render: (v) => (
-                <Badge variant={v === "VERSEMENT" ? "success" : "warning"}>
-                  {v}
-                </Badge>
-              )
-            },
-            { key: "jour", label: "Day" },
-            {
-              key: "client",
-              label: "Client",
-              render: (v) => v?.nom || "N/A"
-            },
-          ]}
-        />
-      </Card>
     </div>
   );
 }

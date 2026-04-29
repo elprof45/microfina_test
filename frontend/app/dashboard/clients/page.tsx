@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { Card, Button } from "@/components/Common";
+import { Card, Button, Badge } from "@/components/Common";
 import { Table } from "@/components/Table";
 import { Modal } from "@/components/Modal";
 import { TextInput } from "@/components/Form";
+import { Search, UserPlus, Eye, Edit, Trash2, Award } from "lucide-react";
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<any[]>([]);
@@ -31,6 +32,17 @@ export default function ClientsPage() {
     }
   };
 
+  const filteredClients = useMemo(() => {
+    if (!searchTerm) return clients;
+    const s = searchTerm.toLowerCase();
+    return clients.filter(
+      (c) =>
+        c.nom?.toLowerCase().includes(s) ||
+        c.numeroClient?.toLowerCase().includes(s) ||
+        c.email?.toLowerCase().includes(s)
+    );
+  }, [clients, searchTerm]);
+
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
@@ -46,65 +58,90 @@ export default function ClientsPage() {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Clients</h1>
-        <Link href="/clients/new">
-          <Button variant="primary">+ New Client</Button>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 font-outfit">Clients</h1>
+          <p className="text-slate-500">Manage and monitor your customer base.</p>
+        </div>
+        <Link href="/dashboard/clients/new">
+          <Button variant="primary">
+            <UserPlus size={20} />
+            Add New Client
+          </Button>
         </Link>
       </div>
 
-      <Card className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Search</h3>
-          {filteredClients.length > 0 && (
-            <p className="text-sm text-gray-600">
-              {filteredClients.length} of {clients.length} results
-            </p>
-          )}
+      <Card className="!p-4 border-none shadow-sm">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input
+            type="text"
+            placeholder="Search by name, client number, or email..."
+            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-        <TextInput
-          placeholder="Search by name, client number, or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
       </Card>
 
-      <Card>
+      <Card className="border-none shadow-premium overflow-hidden !p-0">
         <Table
           isLoading={loading}
           data={filteredClients}
           columns={[
-            { key: "id", label: "ID" },
-            { key: "numeroClient", label: "Number" },
-            { key: "nom", label: "Name" },
+            { 
+              key: "nom", 
+              label: "Client",
+              render: (v, row) => (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                    {row.nom?.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-900">{row.nom}</p>
+                    <p className="text-xs text-slate-500">{row.numeroClient}</p>
+                  </div>
+                </div>
+              )
+            },
             { key: "email", label: "Email" },
             { key: "telephone", label: "Phone" },
+            {
+              key: "isActive",
+              label: "Status",
+              render: (v) => (
+                <Badge variant={v === false ? "error" : "success"}>
+                  {v === false ? "Inactive" : "Active"}
+                </Badge>
+              )
+            },
             {
               key: "id",
               label: "Actions",
               render: (id) => (
                 <div className="flex gap-2">
-                  <Link href={`/clients/${id}`}>
-                    <Button variant="secondary" size="sm">
-                      View
-                    </Button>
+                  <Link href={`/dashboard/clients/${id}`}>
+                    <button className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors" title="View details">
+                      <Eye size={18} />
+                    </button>
                   </Link>
-                  <Link href={`/clients/${id}/edit`}>
-                    <Button variant="secondary" size="sm">
-                      Edit
-                    </Button>
+                  <Link href={`/dashboard/clients/${id}/edit`}>
+                    <button className="p-2 hover:bg-slate-100 text-slate-600 rounded-lg transition-colors" title="Edit">
+                      <Edit size={18} />
+                    </button>
                   </Link>
-                  <Link href={`/reporting/clients/${id}`}>
-                    <Button variant="secondary" size="sm">
-                      Performance
-                    </Button>
+                  <Link href={`/dashboard/reporting/clients/${id}`}>
+                    <button className="p-2 hover:bg-amber-50 text-amber-600 rounded-lg transition-colors" title="Performance">
+                      <Award size={18} />
+                    </button>
                   </Link>
                   <button
                     onClick={() => setDeleteId(id)}
-                    className="text-red-600 hover:text-red-700 text-sm font-medium"
+                    className="p-2 hover:bg-rose-50 text-rose-600 rounded-lg transition-colors"
+                    title="Delete"
                   >
-                    Delete
+                    <Trash2 size={18} />
                   </button>
                 </div>
               ),
@@ -118,11 +155,16 @@ export default function ClientsPage() {
         title="Delete Client"
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
-        confirmText="Delete"
+        confirmText="Delete Client"
         confirmVariant="danger"
         isLoading={deleting}
       >
-        <p>Are you sure you want to delete this client?</p>
+        <div className="text-center py-4">
+          <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+             <Trash2 size={32} />
+          </div>
+          <p className="text-slate-600">Are you sure you want to deactivate this client? They will no longer appear in active searches.</p>
+        </div>
       </Modal>
     </div>
   );

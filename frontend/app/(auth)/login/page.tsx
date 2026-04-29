@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/useAuth";
-import { TextInput, FormField } from "@/components/Form";
+import { TextInput } from "@/components/Form";
 import { Button, Card } from "@/components/Common";
+import { Lock, Mail, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,46 +40,61 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="p-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Microphina</h1>
-        <p className="text-gray-600">Totine Management System</p>
+    <Card className="!p-10 border-none shadow-2xl relative overflow-hidden">
+      {/* Decorative Brand Accent */}
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-indigo-600" />
+      
+      <div className="text-center mb-10">
+        <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center font-bold text-3xl text-white mx-auto mb-4 shadow-xl shadow-blue-200">
+           M
+        </div>
+        <h1 className="text-3xl font-bold text-slate-900 font-outfit tracking-tight">Microphina</h1>
+        <p className="text-slate-500 mt-2 font-medium">Safe & Efficient Totine Management</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {(formError || error) && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-sm font-medium flex items-center gap-2 animate-in slide-in-from-top-2 duration-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
             {formError || error}
           </div>
         )}
 
-        <TextInput
-          name="email"
-          type="email"
-          label="Email"
-          placeholder="your@email.com"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+        <div className="space-y-4">
+          <div className="relative">
+            <TextInput
+              name="email"
+              type="email"
+              label="Email Address"
+              placeholder="name@company.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="!pl-4"
+            />
+          </div>
 
-        <TextInput
-          name="password"
-          type="password"
-          label="Password"
-          placeholder="••••••••"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
+          <div className="relative">
+            <TextInput
+              name="password"
+              type="password"
+              label="Secure Password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="!pl-4"
+            />
+          </div>
+        </div>
 
         <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center gap-2">
-            <input type="checkbox" className="rounded" />
-            <span>Remember me</span>
+          <label className="flex items-center gap-2 cursor-pointer group">
+            <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all" />
+            <span className="text-slate-600 group-hover:text-slate-900 transition-colors">Remember this device</span>
           </label>
-          <Link href="/forgot-password" className="text-blue-600 hover:text-blue-700">
-            Forgot password?
+          <Link href="/forgot-password" size="sm" className="text-blue-600 hover:text-blue-700 font-bold transition-colors">
+            Forgot access?
           </Link>
         </div>
 
@@ -87,17 +103,18 @@ export default function LoginPage() {
           variant="primary"
           size="lg"
           isLoading={isLoading}
-          className="w-full"
+          className="w-full !rounded-xl !py-4 shadow-xl shadow-blue-900/10"
         >
-          Sign In
+          Access Dashboard
+          {!isLoading && <ArrowRight size={18} />}
         </Button>
       </form>
 
-      <div className="mt-6 text-center text-sm">
-        <p className="text-gray-600">
-          Don't have an account?{" "}
-          <Link href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
-            Create one
+      <div className="mt-8 pt-8 border-t border-slate-100 text-center">
+        <p className="text-slate-500 text-sm font-medium">
+          New to the platform?{" "}
+          <Link href="/register" className="text-blue-600 hover:text-blue-700 font-bold underline underline-offset-4 decoration-2 decoration-blue-200 hover:decoration-blue-500 transition-all">
+            Contact Administrator
           </Link>
         </p>
       </div>

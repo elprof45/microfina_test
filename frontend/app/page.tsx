@@ -1,59 +1,79 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/Common";
+import { useAuth } from "@/lib/useAuth";
+import { ArrowRight, CheckCircle2, ShieldCheck, Zap, Globe, Sparkles, LayoutDashboard } from "lucide-react";
 
 export default function Home() {
+  const { isAuthenticated, user } = useAuth();
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen font-inter selection:bg-blue-100">
       {/* Navigation */}
-      <nav className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-blue-600">Microphina</h1>
-              </div>
+      <nav className="glass sticky top-0 z-50 border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex justify-between h-20">
+            <div className="flex items-center gap-2">
+               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg">M</div>
+               <h1 className="text-2xl font-bold text-slate-900 font-outfit tracking-tight">Microphina</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/login"
-                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
-              >
-                Get Started
-              </Link>
+            <div className="flex items-center space-x-6">
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-slate-600 hover:text-blue-600 text-sm font-bold transition-all"
+                  >
+                    Sign In
+                  </Link>
+                  <Link href="/register">
+                    <Button variant="primary" size="sm" className="!rounded-full shadow-xl shadow-blue-900/10">
+                        Get Started
+                        <ArrowRight size={16} />
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <Link href="/dashboard">
+                  <Button variant="primary" size="sm" className="!rounded-full">
+                    Go to Dashboard
+                    <LayoutDashboard size={16} />
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              Empowering <span className="text-blue-600">Microfinance</span> Operations
+      <section className="relative pt-32 pb-24 overflow-hidden bg-white">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[100%] bg-gradient-to-b from-blue-50/50 to-transparent -z-10 blur-3xl opacity-60" />
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center relative">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold uppercase tracking-wider mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+               <Sparkles size={14} />
+               The Next Gen Microfinance OS
+            </div>
+            <h1 className="text-6xl md:text-8xl font-bold text-slate-900 mb-8 font-outfit tracking-tight leading-[1.1] animate-in fade-in slide-in-from-bottom-6 duration-1000">
+              Empowering <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Microfinance</span> <br className="hidden md:block" /> Operations
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Streamline your microfinance business with our comprehensive platform.
-              Manage clients, track transactions, monitor performance, and scale your operations efficiently.
+            <p className="text-xl text-slate-500 mb-12 max-w-2xl mx-auto font-medium leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000">
+              Simplify contributions, manage clients, and scale your agency with our bank-grade secure platform. The all-in-one suite for modern financial inclusion.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/register"
-                className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
-              >
-                Start Free Trial
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
+              <Link href={isAuthenticated ? "/dashboard" : "/register"}>
+                <Button variant="primary" size="lg" className="!rounded-2xl !px-10 !h-16 text-lg shadow-2xl shadow-blue-900/20">
+                  {isAuthenticated ? "Open Dashboard" : "Launch Your Agency"}
+                  <ArrowRight size={20} />
+                </Button>
               </Link>
-              <Link
-                href="#features"
-                className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-all duration-300"
-              >
-                Learn More
+              <Link href="#features">
+                <Button variant="secondary" size="lg" className="!rounded-2xl !px-10 !h-16 text-lg border-2 !bg-transparent">
+                  Features Tour
+                </Button>
               </Link>
             </div>
           </div>

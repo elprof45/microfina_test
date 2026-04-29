@@ -21,6 +21,9 @@ export const useAuth = () => {
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("user", JSON.stringify(user));
 
+        // Set a cookie so Next.js middleware can check auth (edge runtime has no localStorage)
+        document.cookie = `accessToken=${accessToken}; path=/; SameSite=Lax`;
+
         store.setAuth(user, accessToken, refreshToken);
         return { success: true, user };
       } catch (error: any) {
@@ -67,6 +70,8 @@ export const useAuth = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+    // Clear the cookie used by Next.js middleware
+    document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     store.logout();
   }, [store]);
 
@@ -79,6 +84,8 @@ export const useAuth = () => {
       const newAccessToken = response.data.accessToken;
 
       localStorage.setItem("accessToken", newAccessToken);
+      // Keep cookie in sync with refreshed token
+      document.cookie = `accessToken=${newAccessToken}; path=/; SameSite=Lax`;
       store.setAccessToken(newAccessToken);
       return { success: true };
     } catch (error) {

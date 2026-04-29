@@ -1,4 +1,4 @@
-﻿import { Hono } from 'hono';
+import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { zValidator } from '@hono/zod-validator';
 import { HTTPException } from 'hono/http-exception';
@@ -32,6 +32,7 @@ import {
 } from '../lib/validations';
 import { authService } from '../lib/auth';
 import { jwtGuard } from '../lib/middleware';
+import { prisma } from '../lib/db';
 
 const app = new Hono();
 
@@ -164,13 +165,79 @@ app.post(
   }
 );
 
+// --- SETUP ENDPOINTS ---
+
+app.get('/auth/status', async (c) => {
+  const initialized = await reportingService.isInitialized();
+  return c.json({ initialized });
+});
+
+app.post(
+  '/auth/setup',
+  zValidator('json', z.object({
+    societyName: z.string().min(2),
+    adminEmail: z.string().email(),
+    adminPassword: z.string().min(6),
+    adminName: z.string().min(2),
+  })),
+  async (c) => {
+    const initialized = await reportingService.isInitialized();
+    if (initialized) {
+      throw new HTTPException(403, { message: 'System already initialized' });
+    }
+
+    const { societyName, adminEmail, adminPassword, adminName } = c.req.valid('json');
+
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        // 1. Create Society
+        const society = await tx.societe.create({
+          data: { nom: societyName, isActive: true }
+        });
+
+        // 2. Hash Password
+        const motDePasseHash = await authService.hashPassword(adminPassword);
+
+        // 3. Create Admin
+        const admin = await tx.utilisateur.create({
+          data: {
+            email: adminEmail,
+            motDePasseHash,
+            nom: adminName,
+            role: 'ADMIN',
+            societeId: society.id,
+            isActive: true
+          }
+        });
+
+        return { society, admin };
+      });
+
+      return c.json({ 
+        message: 'System initialized successfully',
+        ...result 
+      });
+    } catch (error) {
+      throw new HTTPException(500, { message: 'Failed to initialize system' });
+    }
+  }
+);
+
 // --- JWT GUARD MIDDLEWARE - Protects all routes below ---
+// Use both base path and wildcard to cover /resource and /resource/:id etc.
+app.use('/societe', jwtGuard());
 app.use('/societe/*', jwtGuard());
+app.use('/agence', jwtGuard());
 app.use('/agence/*', jwtGuard());
+app.use('/utilisateur', jwtGuard());
 app.use('/utilisateur/*', jwtGuard());
+app.use('/client', jwtGuard());
 app.use('/client/*', jwtGuard());
+app.use('/carnet', jwtGuard());
 app.use('/carnet/*', jwtGuard());
+app.use('/transaction', jwtGuard());
 app.use('/transaction/*', jwtGuard());
+app.use('/stats', jwtGuard());
 app.use('/stats/*', jwtGuard());
 
 // --- SOCIETE ROUTES ---
@@ -463,15 +530,16 @@ app.get(
 
 // --- ERROR HANDLING ---
 app.onError((err, c) => {
-  console.error('Error:', err);
-
   if (err instanceof HTTPException) {
-    return c.json(
-      { error: err.message },
-      { status: err.status }
-    );
+    if (err.status === 401) {
+      console.warn(`[Auth Warning] ${c.req.method} ${c.req.path}: ${err.message}`);
+    } else {
+      console.error(`[HTTP Error ${err.status}] ${c.req.method} ${c.req.path}:`, err.message);
+    }
+    return c.json({ error: err.message }, { status: err.status });
   }
 
+  console.error('Unhandled Error:', err);
   return c.json(
     { error: err instanceof Error ? err.message : 'Internal server error' },
     { status: 500 }

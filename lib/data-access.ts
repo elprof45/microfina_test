@@ -391,5 +391,10 @@ export const reportingService = {
       nombreTransactions: performance[0]?._count || 0,
       portefeuilleClients: clientCount
     };
+  },
+
+  async isInitialized() {
+    const userCount = await prisma.utilisateur.count();
+    return userCount > 0;
   }
 };

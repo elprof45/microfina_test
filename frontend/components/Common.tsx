@@ -3,7 +3,7 @@
 import React, { ReactNode } from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger" | "success";
+  variant?: "primary" | "secondary" | "danger" | "success" | "ghost" | "outline";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
   children: ReactNode;
@@ -19,19 +19,21 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    "font-medium rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    "font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95";
 
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700",
-    secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300",
-    danger: "bg-red-600 text-white hover:bg-red-700",
-    success: "bg-green-600 text-white hover:bg-green-700",
+    primary: "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:brightness-110",
+    secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm",
+    danger: "bg-rose-500 text-white hover:bg-rose-600 shadow-md",
+    success: "bg-emerald-500 text-white hover:bg-emerald-600 shadow-md",
+    ghost: "bg-transparent text-slate-600 hover:bg-slate-100",
+    outline: "border-2 border-blue-600 text-blue-600 hover:bg-blue-50",
   };
 
   const sizes = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-base",
-    lg: "px-6 py-3 text-lg",
+    sm: "px-4 py-1.5 text-sm",
+    md: "px-6 py-2.5 text-base",
+    lg: "px-8 py-3.5 text-lg",
   };
 
   return (
@@ -71,7 +73,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
+    <div className={`glass rounded-2xl shadow-premium p-6 transition-all duration-300 ${className}`}>
       {children}
     </div>
   );
@@ -83,19 +85,20 @@ export function Badge({
   className = "",
 }: {
   children: ReactNode;
-  variant?: "default" | "success" | "warning" | "error";
+  variant?: "default" | "success" | "warning" | "error" | "info";
   className?: string;
 }) {
   const variants = {
-    default: "bg-gray-100 text-gray-800",
-    success: "bg-green-100 text-green-800",
-    warning: "bg-yellow-100 text-yellow-800",
-    error: "bg-red-100 text-red-800",
+    default: "bg-slate-100 text-slate-700 border border-slate-200",
+    success: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+    warning: "bg-amber-100 text-amber-700 border border-amber-200",
+    error: "bg-rose-100 text-rose-700 border border-rose-200",
+    info: "bg-blue-100 text-blue-700 border border-blue-200",
   };
 
   return (
     <span
-      className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${variants[variant]} ${className}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${variants[variant]} ${className}`}
     >
       {children}
     </span>
