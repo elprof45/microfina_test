@@ -1,17 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-/**
- * MASTER FLOW CONTROLLER (MIDDLEWARE)
- * Handles:
- * 1. Public route access control
- * 2. Auth redirection (Login -> Dashboard)
- * 3. Guest redirection (Protected -> Login)
- */
-
 const PUBLIC_ROUTES = ['/login', '/register', '/setup', '/'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // 1. Skip checks for assets and internal Next.js paths
@@ -36,22 +28,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Flow B: Logged-in user trying to access Auth pages (/login, /register)
+  // Flow B: Logged-in user trying to access Auth pages
   if (token && (pathname === '/login' || pathname === '/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
-
-  // Flow C: Already on setup but potentially logged in (let AuthProvider decide if setup is allowed)
-  // We allow Setup to be public because initialization check is reactive/dynamic.
 
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths for complete flow control
-     */
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };
